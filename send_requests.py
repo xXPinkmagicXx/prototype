@@ -97,8 +97,8 @@ def main():
     print(f"Now getting {n_users} users.")
     avg_response_time_get_users, requests_pr_sec_get_users = get_users(n_users, users_created=True)
 
-    print("Create users: avg response time (ms): ", avg_response_time_create_users, "requests per second: ", requests_pr_sec_create_users)
-    print("Get users: avg response time: (ms) ", avg_response_time_get_users, "requests per second: ", requests_pr_sec_get_users)
+    print("Create users: avg response time (ms): ", avg_response_time_create_users, "; requests per second: ", requests_pr_sec_create_users)
+    print("Get users: avg response time (ms):  ", avg_response_time_get_users, "; requests per second: ", requests_pr_sec_get_users)
 
 if __name__ == "__main__":
     main()
