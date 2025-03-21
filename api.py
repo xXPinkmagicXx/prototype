@@ -1,27 +1,36 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Optional
+import json
 
 app = FastAPI()
 
 # Define the data model
 class User(BaseModel):
-    user_id: int
+    user_id: Optional[int] = None
     name: str
     email: str
     password: str
 
+    def to_dict(self):
+        {
+            "user_id" : self.user_id,
+            "name" : self.name,
+            "email" : self.email,
+            "password" : self.password,
+        }
+
 class Respose(BaseModel):
     status_code: int
     message: str
-    data: User
+    data: Optional[User] = None
 
 # In-memory database
 # email is the key
 users_db: Dict[str, User] = {}
 user_id_counter = 1
 
-@app.post("/create_user/", response_model=Dict[int, User])
+@app.post("/create_user/", response_model=Respose)
 def create_user(user: User):
     global user_id_counter
     user.user_id = user_id_counter

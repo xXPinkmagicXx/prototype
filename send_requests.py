@@ -1,6 +1,7 @@
 import requests
 import random
 import string
+import json 
 
 base = "http://127.0.0.1:8000/" 
 
@@ -31,15 +32,18 @@ def generate_random_users(n: int) -> list:
     return users
 
 def post_create_users():
-    users = generate_random_users(10)
+    users = generate_random_users(1)
     for user in users:
+        print(json.dumps(user))
         response = requests.post(base + create_url, json=user)
+        print(response.ok)        
         print(response.json())        
 
 
 def main():
+    print("running main")
     post_create_users()
 
 
-if "__name__" == "__main__":
+if __name__ == "__main__":
     main()
