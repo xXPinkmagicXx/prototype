@@ -1,0 +1,5 @@
+fastapi==0.115.11
+grpcio==1.71.0
+protobuf==6.30.1
+pydantic==2.10.6
+Requests==2.32.3
