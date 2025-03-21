@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import json
@@ -20,7 +20,7 @@ class User(BaseModel):
             "password" : self.password,
         }
 
-class Respose(BaseModel):
+class Response(BaseModel):
     status_code: int
     message: str
     data: Optional[User] = None
@@ -30,13 +30,23 @@ class Respose(BaseModel):
 users_db: Dict[str, User] = {}
 user_id_counter = 1
 
-@app.post("/create_user/", response_model=Respose)
+@app.post("/create_user/", response_model=Response)
 def create_user(user: User):
     global user_id_counter
     user.user_id = user_id_counter
     users_db[user.email] = user
     user_id_counter += 1
-    return Respose(status_code=200, message="User created successfully", data=user)
+    return Response(status_code=200, message="User created successfully", data=user.email)
+
+@app.get("/users/", response_model=Response)
+def get_user(request: Request):
+    body = request.json()
+    print(body)
+    user_email = request.query_params['user_email']
+    if user_email in users_db:
+        return Response(status_code=200, message="User found", data=users_db[user_email])
+    
+    return Response(status_code=404, message="User not found", data=None)
 
 # @app.get("/users/", response_model=List[Dict[int, User]])
 # def get_users():

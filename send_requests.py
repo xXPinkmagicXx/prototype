@@ -2,13 +2,16 @@ import requests
 import random
 import string
 import json 
+import time
 
 base = "http://127.0.0.1:8000/" 
 
 create_url = "create_user/"
 get_url = "users/"
 
-def get_user_url(user_email: str) -> str:
+user_emails: list[str] = [] 
+
+def get_user_url(user_email) -> str:
     return base + get_url + user_email
 
 def create_user_data(name: str, email: str, password: str) -> dict:
@@ -27,23 +30,75 @@ def generate_random_users(n: int) -> list:
     for i in range(n):
         name = generate_random_string()
         email = generate_random_string() + "@gmail.com"
+        user_emails.append(email)
         password = generate_random_string()
         users.append(create_user_data(name, email, password))
     return users
 
-def post_create_users():
-    users = generate_random_users(1)
+def post_create_users(n_users: int = 1000)-> tuple[float, list]:
+    users = generate_random_users(n_users)
+    response_times_sum = 0
+    begin_time = time.time()
     for user in users:
-        print(json.dumps(user))
+        time_before = time.time()
         response = requests.post(base + create_url, json=user)
-        print(response.ok)        
-        print(response.json())        
+        time_after = time.time()
+        response_times_sum += time_after - time_before
+    end_time = time.time()
+    total_time = end_time - begin_time
+    avg_response_time = response_times_sum / n_users
+    avg_response_time_ms = avg_response_time * 1000
+    return (avg_response_time_ms, n_users / total_time)
 
+# def do_timeing(n_users: int, url: str, function: callable, function_args: list)-> tuple[float, list]:
+#     users = generate_random_users(n_users)
+#     begin_time = time.time()
+#     response_times = []
+#     for user in users:
+#         time_before = time.time()
+#         function(url, function_args)
+#         time_after = time.time()
+#         response_times.append(time_after - time_before) 
+#     end_time = time.time()
+
+#     return (end_time - begin_time, response_times)
+
+def get_user(url: str, args: list)-> requests.Response:
+    response = requests.get(url, json=args[0])
+    return response
+
+def get_users(n_users: int = 1000, users_created = True)-> tuple[float, float]:
+    if not users_created:
+        post_create_users(n_users)
+    
+    begin_time = time.time()
+    response_times_sum = 0
+    for user_email in user_emails:
+        time_before = time.time()
+        response = requests.get(get_user_url(user_email))
+        time_after = time.time()
+        response_times_sum += time_after - time_before
+    end_time = time.time()
+
+    total_time = end_time - begin_time
+    request_per_sec = n_users / total_time
+    avg_response_time = response_times_sum / n_users
+    avg_response_time_ms = avg_response_time * 1000
+
+    return (avg_response_time_ms, request_per_sec)
 
 def main():
     print("running main")
-    post_create_users()
+    
+    n_users = 5000
+    print(f"Now creating {n_users} users.")
+    avg_response_time_create_users, requests_pr_sec_create_users = post_create_users(n_users)
+    
+    print(f"Now getting {n_users} users.")
+    avg_response_time_get_users, requests_pr_sec_get_users = get_users(n_users, users_created=True)
 
+    print("Create users: avg response time (ms): ", avg_response_time_create_users, "requests per second: ", requests_pr_sec_create_users)
+    print("Get users: avg response time: (ms) ", avg_response_time_get_users, "requests per second: ", requests_pr_sec_get_users)
 
 if __name__ == "__main__":
     main()
