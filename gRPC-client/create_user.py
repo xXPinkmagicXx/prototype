@@ -37,5 +37,5 @@ if __name__ == '__main__':
     total_time = timer_after - begin_time
     avg_time = total_time/10000
 
-    print("total_time: ", total_time)
-    print("avg_time: ", avg_time)
+    print("total_time: ", total_time, "s")
+    print("avg_time: ", avg_time*1000, "ms")
