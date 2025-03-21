@@ -38,15 +38,6 @@ def create_user(user: User):
     user_id_counter += 1
     return Response(status_code=200, message="User created successfully", data=user.email)
 
-@app.get("/users/", response_model=Response)
-def get_user(request: Request):
-    body = request.json()
-    print(body)
-    user_email = request.query_params['user_email']
-    if user_email in users_db:
-        return Response(status_code=200, message="User found", data=users_db[user_email])
-    
-    return Response(status_code=404, message="User not found", data=None)
 
 @app.get("/users/{email}", response_model=User)
 def get_user(user_email: str):
