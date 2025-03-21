@@ -22,6 +22,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
             return user_pb2.UserResponse(success=False, error_message=error_message)
     
     def DeleteUser(self, request, context):
+        user_id = request.username
         print(f"Received user deletion request: {request.username}")
 
         if request.username in database:
@@ -31,6 +32,15 @@ class UserService(user_pb2_grpc.UserServiceServicer):
         else:
             print("User doesnt exist")
 
+    def CheckUser(self, request, context):
+        user_id = request.username
+        print("Checking user {request.username}")
+        if request.username in database:
+            print("User exist")
+            return user_pb2.UserResponse(success=True, user_id=user_id)
+        else:
+            print("User doesn't exist")
+            return user_pb2.UserResponse(success=False)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

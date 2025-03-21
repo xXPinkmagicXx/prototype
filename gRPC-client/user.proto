@@ -2,6 +2,8 @@ syntax = "proto3";
 
 service UserService {
   rpc CreateUser (User) returns (UserResponse) {}
+  rpc DeleteUser (User) returns (UserResponse) {}
+  rpc CheckUser (User) returns (UserResponse) {}
 }
 
 message User {
