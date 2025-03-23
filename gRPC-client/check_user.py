@@ -30,13 +30,16 @@ def run():
 
 if __name__ == '__main__':
   begin_time = time.time()
-  for i in range(10000):
+  n_requests = 10000
+  for i in range(n_requests):
       run()
   timer_after = time.time()
   total_time = timer_after - begin_time
-  avg_time = total_time/10000
+  avg_time_per_request = total_time/n_requests
 
-  print("total_time: ", total_time, "s")
-  print("avg_time: ", avg_time*1000, "ms")
+  request_per_second = n_requests / total_time
+  
+  print("Request per second: ", request_per_second)
+  print("avg time per reqest: ", avg_time_per_request*1000, "ms")
 
 
