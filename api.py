@@ -36,10 +36,10 @@ def create_user(user: User):
     user.user_id = user_id_counter
     users_db[user.email] = user
     user_id_counter += 1
-    return Response(status_code=200, message="User created successfully", data=user.email)
+    return Response(status_code=200, message="User created successfully", data=user)
 
 
-@app.get("/users/{email}", response_model=User)
+@app.get("/users/{user_email}", response_model=User)
 def get_user(user_email: str):
     if user_email not in users_db:
         raise HTTPException(status_code=404, detail="User not found")
