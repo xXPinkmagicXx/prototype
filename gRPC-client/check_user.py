@@ -18,7 +18,7 @@ def run():
   with grpc.insecure_channel('localhost:50051') as channel:
     stub = user_pb2_grpc.UserServiceStub(channel)
 
-    username = sys.argv[1]
+    username = "test"
 
     response = check_user(stub, username)
 
@@ -29,6 +29,14 @@ def run():
       print(f"No user {username}")
 
 if __name__ == '__main__':
-    run()
+  begin_time = time.time()
+  for i in range(10000):
+      run()
+  timer_after = time.time()
+  total_time = timer_after - begin_time
+  avg_time = total_time/10000
+
+  print("total_time: ", total_time, "s")
+  print("avg_time: ", avg_time*1000, "ms")
 
 
