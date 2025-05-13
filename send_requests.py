@@ -5,7 +5,6 @@ import json
 import time
 
 base = "http://127.0.0.1:8000/" 
-
 create_url = "create_user/"
 get_url = "users/"
 
@@ -45,9 +44,11 @@ def post_create_users(n_users: int = 1000)-> tuple[float, list]:
         time_after = time.time()
         response_times_sum += time_after - time_before
     end_time = time.time()
+    
     total_time = end_time - begin_time
     avg_response_time = response_times_sum / n_users
     avg_response_time_ms = avg_response_time * 1000
+    
     return (avg_response_time_ms, n_users / total_time)
 
 # def do_timeing(n_users: int, url: str, function: callable, function_args: list)-> tuple[float, list]:

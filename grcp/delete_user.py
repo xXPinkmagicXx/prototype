@@ -24,5 +24,6 @@ def run():
     else:
       print(f"Failed to delete user. Error: {response.error_message}")
 
+
 if __name__ == '__main__':
   run()

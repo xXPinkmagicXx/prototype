@@ -29,16 +29,24 @@ def run():
     else:
       print(f"Failed to create user. Error: {response.error_message}")
 
-if __name__ == '__main__':
+def run_create_user_experiment(n_requests: int) -> tuple[float, float]:
+    
     begin_time = time.time()
-    n_requests = 10000
-    for i in range(n_requests):
+    for _ in range(n_requests):
         run()
     timer_after = time.time()
     total_time = timer_after - begin_time
-    avg_time_per_request = total_time/n_requests
-
-    request_per_second = n_requests / total_time
     
-    print("Request per second: ", request_per_second)
-    print("avg time per reqest: ", avg_time_per_request*1000, "ms")
+    # Calculate metrics
+    avg_time_per_request = total_time / n_requests
+    request_per_second = n_requests / total_time   
+
+    return request_per_second, avg_time_per_request
+
+if __name__ == '__main__':
+    
+  n_requests = 10_000
+  request_per_second, avg_time_per_request = run_create_user_experiment(n_requests)
+
+  print("Request per second: ", request_per_second)
+  print("avg time per reqest: ", avg_time_per_request*1000, "ms")
