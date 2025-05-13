@@ -9,14 +9,15 @@ import requests
 import argparse
 import sys
 from Arguments import Arguments
+from sa_grpc import call_grpc
 
 
-def do_grpc_health_check(current_uptime: float)-> bool:
-    # Create a gRPC channel
-    with grpc.insecure_channel('localhost:50051') as channel:
-        # Create a stub (client)
-        stub = user_pb2_grpc.UserServiceStub(channel)
-        return check_grpc_server_health(stub, current_uptime)
+# def do_grpc_health_check(current_uptime: float)-> bool:
+#     # Create a gRPC channel
+#     with grpc.insecure_channel('localhost:50051') as channel:
+#         # Create a stub (client)
+#         stub = user_pb2_grpc.UserServiceStub(channel)
+#         return check_grpc_server_health(stub, current_uptime)
 
 
 def check_grpc_server_health(stub, current_uptime)-> bool:
@@ -89,7 +90,7 @@ def start_grpc_insecure_server():
     # Wait for the servers to start
     time.sleep(5)  # Adjust this as necessary to ensure the server is up
     while True:
-        is_healthy = do_grpc_health_check(uptime)
+        is_healthy = call_grpc.is_insecure_healthy()
         if not is_healthy:
             print("[Error] Server is not healthy.")
             break
@@ -106,7 +107,7 @@ def start_grpc_secure_server():
     # Wait for the servers to start
     time.sleep(5)  # Adjust this as necessary to ensure the server is up
     while True:
-        is_healthy = do_grpc_health_check(uptime)
+        is_healthy = call_grpc.is_secure_healthy()
         if not is_healthy:
             print("[Error] Server is not healthy.")
             break
@@ -147,9 +148,10 @@ if __name__ == "__main__":
 
     parser.add_argument("--grpc", "-g", action="store_true", help="Port for gRPC server")
     parser.add_argument("--rest", "-r", action="store_true", help="Port for gRPC server")
-     
+    parser.add_argument("--secure", "-s", action="store_true", help="With secure server")
+
     args = parser.parse_args(sys.argv[1:])
-    arguments= Arguments(grpc=args.grpc, rest=args.rest)
+    arguments= Arguments(grpc=args.grpc, rest=args.rest, secure=args.secure)
 
     
     main(arguments)

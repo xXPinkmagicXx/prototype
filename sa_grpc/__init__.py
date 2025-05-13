@@ -5,3 +5,4 @@ from .delete_user import delete_user
 from .check_user import check_user
 from .create_user import create_user
 from . import server
+from . import call_grpc

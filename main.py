@@ -1,13 +1,13 @@
 import send_requests as rest
-from sa_grpc.create_user import run_create_user_experiment
-from sa_grpc.server import serve
+from sa_grpc.create_user import run_create_user_experiment, is_healthy
 from Arguments import Arguments
 import argparse
 import sys
 import start_servers as server
 import threading
 import time
-
+import grpc
+from sa_grpc import call_grpc
 
 def run_rest_create(n_users: int):
     pass
@@ -38,20 +38,28 @@ def main(args: Arguments):
     if args.grpc and not args.secure:
         grpc_server_thread = threading.Thread(target=server.start_grpc_insecure_server, daemon=True)
         grpc_server_thread.start()
+
+    if args.grpc and args.secure:
+        grpc_server_thread = threading.Thread(target=server.start_grpc_secure_server, daemon=True)
+        grpc_server_thread.start()
     
+    starting = True
+    
+    # Waiting for server to start
+    while starting:
+        if call_grpc.is_healthy(args.secure):
+            starting = False
+        time.sleep(1)
+
 
     print("Create users experiment")
-    avg_time_per_request, request_per_second = run_create_user_experiment(args.n_users)
+    # avg_time_per_request, request_per_second = run_create_user_experiment(args.n_users)
     
-    print("Request per second: ", request_per_second)
-    print("avg time per reqest: ", avg_time_per_request*1000, "ms")
+    # print("Request per second: ", request_per_second)
+    # print("avg time per reqest: ", avg_time_per_request*1000, "ms")
 
 
 
-
-def start_grcp_server():
-    # Start the gRPC server
-    serve()
 
 if __name__ == "__main__":
     
@@ -60,11 +68,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start gRPC and REST servers.")
     # How to parse short args 
 
-    parser.add_argument("--grpc", "-g", action="store_true", help="Port for gRPC server")
-    parser.add_argument("--rest", "-r", action="store_true", help="Port for gRPC server")
+    parser.add_argument("--grpc", "-g", action="store_true", help="Run gRPC server")
+    parser.add_argument("--rest", "-r", action="store_true", help="Run REST server")
+    parser.add_argument("--secure", "-s", action="store_true", help="With secure server")
      
     args = parser.parse_args(sys.argv[1:])
-    arguments = Arguments(grpc=args.grpc, rest=args.rest)
+    arguments = Arguments(grpc=args.grpc, rest=args.rest, secure=args.secure)
     
     arguments.n_users = 10_000
     print(arguments)

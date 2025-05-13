@@ -11,11 +11,7 @@ def create_user(stub, username, email):
   response = stub.CreateUser(user)
   return response
 
-def ok(stub, username, email):
-  """Creates a user using the gRPC stub."""
-  user = user_pb2.User(username=username, email=email)
-  response = stub.Ok(user)
-  return response
+
 
 def post_create_user():
   """Runs the client application."""
