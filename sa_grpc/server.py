@@ -43,16 +43,19 @@ class UserService(user_pb2_grpc.UserServiceServicer):
             return user_pb2.UserResponse(success=False)
     
     def Ok(self, request, context):
-        print("Received health check request")
         return user_pb2.Response(success=True)
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
-    server.add_insecure_port('[::]:50051')
-    server.start()
-    print("Server started on port 50051")
-    server.wait_for_termination()
+    try: 
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+        user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
+        server.add_insecure_port('[::]:50051')
+        server.start()
+        print("Server started on port 50051")
+        server.wait_for_termination()
+
+    except Exception as e:
+        print(f"[Error] Server stopped unexpectedly: {e}")
 
 if __name__ == '__main__':
     serve()

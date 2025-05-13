@@ -1,6 +1,13 @@
 import send_requests as rest
 from sa_grpc.create_user import run_create_user_experiment
 from sa_grpc.server import serve
+from Arguments import Arguments
+import argparse
+import sys
+import start_servers as server
+import threading
+import time
+
 
 def run_rest_create(n_users: int):
     pass
@@ -25,10 +32,20 @@ def run_create_experiment(n_users: int):
 
 
 
-def main():
+def main(args: Arguments):
 
-    n_users = 5000
-    run_create_experiment(n_users)
+
+    if args.grpc:
+        grpc_server_thread = threading.Thread(target=server.start_grpc_server, daemon=True)
+        grpc_server_thread.start()
+
+    print("Create users experiment")
+    avg_time_per_request, request_per_second = run_create_user_experiment(args.n_users)
+    
+    print("Request per second: ", request_per_second)
+    print("avg time per reqest: ", avg_time_per_request*1000, "ms")
+
+
 
 
 def start_grcp_server():
@@ -36,4 +53,19 @@ def start_grcp_server():
     serve()
 
 if __name__ == "__main__":
-    main()
+    
+    
+    # How to parse arguments
+    parser = argparse.ArgumentParser(description="Start gRPC and REST servers.")
+    # How to parse short args 
+
+    parser.add_argument("--grpc", "-g", action="store_true", help="Port for gRPC server")
+    parser.add_argument("--rest", "-r", action="store_true", help="Port for gRPC server")
+     
+    args = parser.parse_args(sys.argv[1:])
+    arguments = Arguments(grpc=args.grpc, rest=args.rest)
+    
+    arguments.n_users = 10_000
+    print(arguments)
+    main(arguments)
+    print("Done")
