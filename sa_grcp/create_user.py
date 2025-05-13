@@ -1,6 +1,6 @@
 import grpc
-import user_pb2
-import user_pb2_grpc
+from . import user_pb2
+from . import user_pb2_grpc
 import string
 import random
 import time
@@ -41,12 +41,12 @@ def run_create_user_experiment(n_requests: int) -> tuple[float, float]:
     avg_time_per_request = total_time / n_requests
     request_per_second = n_requests / total_time   
 
-    return request_per_second, avg_time_per_request
+    return avg_time_per_request, request_per_second
 
 if __name__ == '__main__':
     
   n_requests = 10_000
-  request_per_second, avg_time_per_request = run_create_user_experiment(n_requests)
+  avg_time_per_request, request_per_second = run_create_user_experiment(n_requests)
 
   print("Request per second: ", request_per_second)
   print("avg time per reqest: ", avg_time_per_request*1000, "ms")

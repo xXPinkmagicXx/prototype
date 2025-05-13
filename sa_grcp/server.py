@@ -1,6 +1,6 @@
 import grpc
-import user_pb2
-import user_pb2_grpc
+from . import user_pb2
+from . import user_pb2_grpc
 from concurrent import futures
 
 database = {}
