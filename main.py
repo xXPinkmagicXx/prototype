@@ -35,9 +35,10 @@ def run_create_experiment(n_users: int):
 def main(args: Arguments):
 
 
-    if args.grpc:
-        grpc_server_thread = threading.Thread(target=server.start_grpc_server, daemon=True)
+    if args.grpc and not args.secure:
+        grpc_server_thread = threading.Thread(target=server.start_grpc_insecure_server, daemon=True)
         grpc_server_thread.start()
+    
 
     print("Create users experiment")
     avg_time_per_request, request_per_second = run_create_user_experiment(args.n_users)

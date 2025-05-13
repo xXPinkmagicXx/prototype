@@ -45,7 +45,7 @@ class UserService(user_pb2_grpc.UserServiceServicer):
     def Ok(self, request, context):
         return user_pb2.Response(success=True)
 
-def serve():
+def insecure_server():
     try: 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
         user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
@@ -57,5 +57,23 @@ def serve():
     except Exception as e:
         print(f"[Error] Server stopped unexpectedly: {e}")
 
+def secure_server():
+    try: 
+
+        with open("server.crt", "rb") as cert_file, open("server.key", "rb") as key_file:
+            server_credentials = grpc.ssl_server_credentials([(key_file.read(), cert_file.read())])
+
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+        user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
+        # Add secure port with TLS
+        server.add_secure_port('[::]:50051', server_credentials)
+        server.start()
+        
+        print("Server started on port 50051")
+        server.wait_for_termination()
+
+    except Exception as e:
+        print(f"[Error] Server stopped unexpectedly: {e}")
+
 if __name__ == '__main__':
-    serve()
+    insecure_server()
