@@ -49,6 +49,11 @@ class UserServiceStub(object):
                 request_serializer=user__pb2.User.SerializeToString,
                 response_deserializer=user__pb2.UserResponse.FromString,
                 _registered_method=True)
+        self.Ok = channel.unary_unary(
+                '/UserService/Ok',
+                request_serializer=user__pb2.User.SerializeToString,
+                response_deserializer=user__pb2.UserResponse.FromString,
+                _registered_method=True)
 
 
 class UserServiceServicer(object):

@@ -1,6 +1,6 @@
 import send_requests as rest
-from sa_grcp.create_user import run_create_user_experiment
-from sa_grcp.server import serve
+from sa_grpc.create_user import run_create_user_experiment
+from sa_grpc.server import serve
 
 def run_rest_create(n_users: int):
     pass
@@ -36,4 +36,4 @@ def start_grcp_server():
     serve()
 
 if __name__ == "__main__":
-    start_grcp_server()
+    main()
