@@ -16,11 +16,11 @@ def run_rest_get(n_users):
 def run_create_experiment(n_users: int):
     
     # print(f"Now creating {n_users} users.")
-    avg_response_time_rest, requests_per_sec_rest = rest.post_create_users(n_users)
+    # avg_response_time_rest, requests_per_sec_rest = rest.post_create_users(n_users)
     avg_respone_time_grcp, requests_per_sec_grcp = run_create_user_experiment(n_requests=n_users)
     
     
-    print("Create users: avg response time (ms): ", avg_response_time_rest, "; requests per second: ", requests_per_sec_rest)
+    # print("Create users: avg response time (ms): ", avg_response_time_rest, "; requests per second: ", requests_per_sec_rest)
     print("Create users: avg response time (ms): ", avg_respone_time_grcp, "; requests per second: ", requests_per_sec_grcp)
 
 

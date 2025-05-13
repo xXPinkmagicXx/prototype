@@ -11,7 +11,13 @@ def create_user(stub, username, email):
   response = stub.CreateUser(user)
   return response
 
-def run():
+def ok(stub, username, email):
+  """Creates a user using the gRPC stub."""
+  user = user_pb2.User(username=username, email=email)
+  response = stub.Ok(user)
+  return response
+
+def post_create_user():
   """Runs the client application."""
   # Replace 'localhost:50051' with your server address.
   with grpc.insecure_channel('localhost:50051') as channel:
@@ -21,7 +27,7 @@ def run():
     username = "user" + random_string
     email = username + "@gmail.com"
 
-    response = create_user(stub, username, email)
+    response = ok(stub, username, email)
 
     if response.success:
       #print(f"User created successfully! User ID: {response.user_id}")
@@ -33,7 +39,7 @@ def run_create_user_experiment(n_requests: int) -> tuple[float, float]:
     
     begin_time = time.time()
     for _ in range(n_requests):
-        run()
+        post_create_user()
     timer_after = time.time()
     total_time = timer_after - begin_time
     

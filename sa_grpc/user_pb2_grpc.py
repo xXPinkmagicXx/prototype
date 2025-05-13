@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import user_pb2 as user__pb2
+import user_pb2 as user__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
@@ -51,8 +51,8 @@ class UserServiceStub(object):
                 _registered_method=True)
         self.Ok = channel.unary_unary(
                 '/UserService/Ok',
-                request_serializer=user__pb2.User.SerializeToString,
-                response_deserializer=user__pb2.UserResponse.FromString,
+                request_serializer=user__pb2.EmptyRequest.SerializeToString,
+                response_deserializer=user__pb2.Response.FromString,
                 _registered_method=True)
 
 
@@ -77,6 +77,12 @@ class UserServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Ok(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -94,6 +100,11 @@ def add_UserServiceServicer_to_server(servicer, server):
                     servicer.CheckUser,
                     request_deserializer=user__pb2.User.FromString,
                     response_serializer=user__pb2.UserResponse.SerializeToString,
+            ),
+            'Ok': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ok,
+                    request_deserializer=user__pb2.EmptyRequest.FromString,
+                    response_serializer=user__pb2.Response.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -177,6 +188,33 @@ class UserService(object):
             '/UserService/CheckUser',
             user__pb2.User.SerializeToString,
             user__pb2.UserResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Ok(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/UserService/Ok',
+            user__pb2.EmptyRequest.SerializeToString,
+            user__pb2.Response.FromString,
             options,
             channel_credentials,
             insecure,

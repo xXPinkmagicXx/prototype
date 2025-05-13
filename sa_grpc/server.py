@@ -41,9 +41,10 @@ class UserService(user_pb2_grpc.UserServiceServicer):
         else:
             print("User doesn't exist")
             return user_pb2.UserResponse(success=False)
+    
     def Ok(self, request, context):
         print("Received health check request")
-        return user_pb2.UserResponse(success=True)
+        return user_pb2.Response(success=True)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

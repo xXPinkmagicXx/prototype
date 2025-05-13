@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nuser.proto\"\'\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\"G\n\x0cUserResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x15\n\rerror_message\x18\x03 \x01(\t2~\n\x0bUserService\x12$\n\nCreateUser\x12\x05.User\x1a\r.UserResponse\"\x00\x12$\n\nDeleteUser\x12\x05.User\x1a\r.UserResponse\"\x00\x12#\n\tCheckUser\x12\x05.User\x1a\r.UserResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nuser.proto\"\'\n\x04User\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x65mail\x18\x02 \x01(\t\"\x1b\n\x08Response\x12\x0f\n\x07success\x18\x01 \x01(\x08\"\x0e\n\x0c\x45mptyRequest\"G\n\x0cUserResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x15\n\rerror_message\x18\x03 \x01(\t2\xa0\x01\n\x0bUserService\x12$\n\nCreateUser\x12\x05.User\x1a\r.UserResponse\"\x00\x12$\n\nDeleteUser\x12\x05.User\x1a\r.UserResponse\"\x00\x12#\n\tCheckUser\x12\x05.User\x1a\r.UserResponse\"\x00\x12 \n\x02Ok\x12\r.EmptyRequest\x1a\t.Response\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,8 +33,12 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_USER']._serialized_start=14
   _globals['_USER']._serialized_end=53
-  _globals['_USERRESPONSE']._serialized_start=55
-  _globals['_USERRESPONSE']._serialized_end=126
-  _globals['_USERSERVICE']._serialized_start=128
-  _globals['_USERSERVICE']._serialized_end=254
+  _globals['_RESPONSE']._serialized_start=55
+  _globals['_RESPONSE']._serialized_end=82
+  _globals['_EMPTYREQUEST']._serialized_start=84
+  _globals['_EMPTYREQUEST']._serialized_end=98
+  _globals['_USERRESPONSE']._serialized_start=100
+  _globals['_USERRESPONSE']._serialized_end=171
+  _globals['_USERSERVICE']._serialized_start=174
+  _globals['_USERSERVICE']._serialized_end=334
 # @@protoc_insertion_point(module_scope)

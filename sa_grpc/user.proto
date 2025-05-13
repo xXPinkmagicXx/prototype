@@ -4,12 +4,19 @@ service UserService {
   rpc CreateUser (User) returns (UserResponse) {}
   rpc DeleteUser (User) returns (UserResponse) {}
   rpc CheckUser (User) returns (UserResponse) {}
+  rpc Ok (EmptyRequest) returns (Response) {}
 }
 
 message User {
   string username = 1;
   string email = 2;
 }
+
+message Response{
+    bool success = 1;
+}
+
+message EmptyRequest {}
 
 message UserResponse {
   bool success = 1;

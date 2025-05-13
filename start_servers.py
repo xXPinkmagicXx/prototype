@@ -10,10 +10,12 @@ def main():
 
     # Run the server in a separate process
     # Run the server in a background thread
-    server_thread = threading.Thread(target=start_grpc_server, daemon=True)
-    server_thread.start()
-
+    start_grpc_server()
     
+    # server_thread = threading.Thread(target=start_grpc_server, daemon=True)
+    # server_thread.start()
+
+
     print("Server is running in the background...")
 
 
