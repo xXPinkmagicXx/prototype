@@ -175,5 +175,5 @@ cython_debug/
 
 # Custom adds
 
-services.crt
-services.key
+server.crt
+server.key
