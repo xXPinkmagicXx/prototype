@@ -50,18 +50,25 @@ def start_sever_in_background(args: Arguments)->None:
    if args.grpc and not args.secure:
       grpc_server_thread = threading.Thread(target=server.start_grpc_insecure_server, daemon=True)
       grpc_server_thread.start()
+      print(f"[Info] main.py - started server grpc secure: {args.secure}")
+
 
    if args.grpc and args.secure:
       grpc_server_thread = threading.Thread(target=server.start_grpc_secure_server, daemon=True)
       grpc_server_thread.start()
+      print(f"[Info] main.py - started server grpc secure: {args.secure}")
    
    if args.rest and not args.secure:
       rest_server_thread = threading.Thread(target=server.start_rest_insecure_server, daemon=True)
       rest_server_thread.start()
+      print(f"[Info] main.py - started server rest secure: {args.secure}")
+
 
    if args.rest and args.secure:
       rest_server_thread = threading.Thread(target=server.start_rest_secure_server, daemon=True)
       rest_server_thread.start()
+      print(f"[Info] main.py - started server rest secure: {args.secure}")
+
 
 
 
@@ -72,9 +79,6 @@ def main(args: Arguments):
    start_sever_in_background(args)
    # Waiting for server to start
    starting = True
-   time.sleep(5)
-   response = requests.get("https://localhost:8000/ok", cert=("./server.crt", "./server.key"), verify=False)
-   print(response)
    while starting:
       if server.is_specified_server_healthy(args):
          starting = False
@@ -82,6 +86,7 @@ def main(args: Arguments):
          print("[Info] Waiting for server to start...") 
       time.sleep(2)
 
+   print("[Info] main.py: Running Experiment")
    avg_time_per_request, request_per_second = run_create_experiment(args)
    
    result = Result(args, avg_time_per_request, request_per_second)

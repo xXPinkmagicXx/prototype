@@ -35,29 +35,32 @@ def is_insecure_healthy() -> bool:
       return response.success
     
   except grpc.RpcError as e:
-    print(f"[Error] Health check failed")
+    print(f"[Error] call_grpc.py - Insecure Health check failed")
     return False
   
 def is_secure_healthy() -> bool:
   
-  with open('server.crt', 'rb') as f:
-    trusted_certs = f.read()
-  with open('server.key', 'rb') as f:
-    private_key = f.read()
+   with open('./server.crt', 'rb') as f:
+      trusted_certs = f.read()
 
-  credentials = grpc.ssl_channel_credentials(trusted_certs)
-  
-  try:
-    with grpc.secure_channel('localhost:50051', credentials=credentials) as channel:
-      stub = user_pb2_grpc.UserServiceStub(channel)
-      empty = user_pb2.EmptyRequest()
-      response = stub.Ok(empty)
+   with open('./server.key', 'rb') as f:
+      private_key = f.read()
 
-      return response.success
-    
-  except grpc.RpcError as e:
-    print(f"[Error] Health check failed")
-    return False
+   credentials = grpc.ssl_channel_credentials(root_certificates=trusted_certs)
+   try:
+      with grpc.secure_channel('localhost:50051', credentials=credentials) as channel:
+         stub = user_pb2_grpc.UserServiceStub(channel)
+         empty = user_pb2.EmptyRequest()
+         response = stub.Ok(empty)
+
+         return response.success
+      
+   except grpc.RpcError as e:
+      print(f"[Error] Health check failed {e}")
+      return False
+   except FileNotFoundError:
+      print("[Error] Certificate file not found.")
+      return False
   
 def is_healthy(secure: bool)-> bool:
   if not secure:

@@ -133,9 +133,9 @@ def is_specified_server_healthy(args: Arguments):
    if args.rest and args.secure:
       return is_rest_secure_healthy()
    if args.grpc and not args.secure:
-      return call_grpc.is_secure_healthy()
-   if args.grpc and args.secure:
       return call_grpc.is_insecure_healthy()
+   if args.grpc and args.secure:
+      return call_grpc.is_secure_healthy()
 
    raise NotImplementedError(f"No Server health for {args}.")
 
@@ -202,12 +202,12 @@ def start_grpc_secure_server():
     # Wait for the servers to start
     time.sleep(5)  # Adjust this as necessary to ensure the server is up
     while True:
-        is_healthy = call_grpc.is_secure_healthy()
-        if not is_healthy:
-            print("[Error] Server is not healthy.")
-            break
-        uptime += sleep_time_sec
-        time.sleep(sleep_time_sec)  # Adjust this as necessary to ensure the server is up
+      is_healthy = call_grpc.is_secure_healthy()
+      if not is_healthy:
+         print("[Error] Server is not healthy.")
+      else:
+         uptime += sleep_time_sec
+      time.sleep(sleep_time_sec)  # Adjust this as necessary to ensure the server is up
 
 def start_server_from_args(args: Arguments):
     if args.grpc and not args.secure:
@@ -224,16 +224,15 @@ def start_server_from_args(args: Arguments):
 
     if args.rest and args.secure:
         start_rest_secure_server()
-        print("[Error] Secure REST server is not implemented yet.")
         return
     
 
 def main(args:Arguments) -> None:
     
-    start_server_from_args(args)
+   start_server_from_args(args)
 
-    print("[Error] No server started specified")
-    return
+   print("[Error] No server started specified")
+   return
 
 
 if __name__ == "__main__":

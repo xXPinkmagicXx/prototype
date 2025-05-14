@@ -51,7 +51,7 @@ def insecure_server():
         user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
         server.add_insecure_port('[::]:50051')
         server.start()
-        print("Server started on port 50051")
+        print("Insecure server started on port 50051")
         server.wait_for_termination()
 
     except Exception as e:
@@ -60,7 +60,7 @@ def insecure_server():
 def secure_server():
     try: 
 
-        with open("server.crt", "rb") as cert_file, open("server.key", "rb") as key_file:
+        with open("./server.crt", "rb") as cert_file, open("./server.key", "rb") as key_file:
             server_credentials = grpc.ssl_server_credentials([(key_file.read(), cert_file.read())])
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
@@ -71,6 +71,7 @@ def secure_server():
         
         print("Server started on port 50051")
         server.wait_for_termination()
+        print("[info] Server terminated")
 
     except Exception as e:
         print(f"[Error] Server stopped unexpectedly: {e}")

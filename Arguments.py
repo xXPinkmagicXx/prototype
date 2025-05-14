@@ -8,4 +8,6 @@ class Arguments:
         self.method = method
 
     def __str__(self):
-        return f"Arguments(grpc={self.grpc}, rest={self.rest})"
+        
+      print_string = f"""Arguments( grpc={self.grpc}, rest={self.rest}, n_users={self.n_users},secure={self.secure},method={self.method})"""
+      return print_string

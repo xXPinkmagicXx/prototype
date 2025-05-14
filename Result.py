@@ -8,6 +8,16 @@ class Result:
       self.avg_response_time = avg_response_time_ms
       self.request_per_sec = request_per_sec
 
+   def create_new_file(self, path):
+      with open(path, "w") as f:
+         f.write("avg_response_time_ms")
+         f.write(",")
+         f.write("request_per_sec")
+         f.write("\n")
+      
+
+
+
    def save_experiment_to_file(self):
 
       if not os.path.exists("./data/"):
@@ -27,11 +37,12 @@ class Result:
          os.makedirs(directory)
 
       path = directory + file_name
+      if not os.path.exists(path):
+         self.create_new_file(path)
+
       with open(path, "a") as f:
-         f.write("avg_response_time_ms: ")
          f.write(str(self.avg_response_time))
-         f.write("\n")
-         f.write("request_per_sec: ")
+         f.write(",")
          f.write(str(self.request_per_sec))
          f.write("\n")
       
@@ -46,7 +57,7 @@ class Result:
 
       file_name += "_" + self.args.method 
       file_name += "_" + str(self.args.n_users)
-      return file_name + ".txt"
+      return file_name + ".csv"
       
       
       
