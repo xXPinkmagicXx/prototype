@@ -24,7 +24,7 @@ def post_create_user_insecure(username) -> str:
       response = create_user(stub, username, email)
       return response.success
     
-def post_create_user_secure():
+def post_create_user_secure(username: str)-> bool:
   """Runs the client application."""
   # Replace 'localhost:50051' with your server address.
   with open('server.crt', 'rb') as f:
@@ -34,17 +34,10 @@ def post_create_user_secure():
   with grpc.secure_channel('localhost:50051', credentials=credentials) as channel:
     stub = user_pb2_grpc.UserServiceStub(channel)
 
-    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 8))
-    username = "user" + random_string
     email = username + "@gmail.com"
-
     response = create_user(stub, username, email)
 
-    if response.success:
-      #print(f"User created successfully! User ID: {response.user_id}")
-      return
-    else:
-      print(f"Failed to create user. Error: {response.error_message}")
+    return response.success
 
 def generate_random_users(n: int) -> list:
     users: list[str] = []
@@ -72,13 +65,13 @@ def run_create_user_experiment_insecure(n_requests: int) -> tuple[float, float, 
    avg_time_per_request_ms = avg_time_per_request * 1000
    return avg_time_per_request_ms, request_per_second, users
 
-def run_create_user_experiment_secure(n_requests: int) -> tuple[float, float]:
+def run_create_user_experiment_secure(n_requests: int) -> tuple[float, float, list]:
    """Runs the client application."""
    # Replace 'localhost:50051' with your server address.
-
+   usernames = generate_random_users(n_requests)    
    begin_time = time.time()
-   for _ in range(n_requests):
-      post_create_user_secure()
+   for user in usernames:
+      success = post_create_user_secure(user)
    timer_after = time.time()
    total_time = timer_after - begin_time
    
@@ -87,7 +80,7 @@ def run_create_user_experiment_secure(n_requests: int) -> tuple[float, float]:
    request_per_second = n_requests / total_time   
    
    avg_time_per_request_ms = avg_time_per_request * 1000
-   return avg_time_per_request_ms, request_per_second
+   return avg_time_per_request_ms, request_per_second, usernames
 
 if __name__ == '__main__':
     

@@ -1,6 +1,6 @@
 import send_requests as rest
 from sa_grpc import run_create_user_experiment_insecure, run_create_user_experiment_secure
-from sa_grpc.check_user import run_get_user_experiment_insecure
+from sa_grpc.check_user import run_get_user_experiment_insecure, run_get_user_experiment_secure
 from Arguments import Arguments
 import argparse
 import sys
@@ -81,7 +81,7 @@ def run_get_experiment(args: Arguments):
       avg_response_time, request_per_sec = run_get_user_experiment_insecure(args.n_users, False)
    
    if args.grpc and args.secure:
-      raise NotImplementedError("get experiment grpc and secure")
+      avg_response_time, request_per_sec = run_get_user_experiment_secure(args.n_users, False)
 
 
    return avg_response_time, request_per_sec
