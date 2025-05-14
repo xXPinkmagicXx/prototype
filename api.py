@@ -45,7 +45,7 @@ def get_user(user_email: str):
         raise HTTPException(status_code=404, detail="User not found")
     return users_db[user_email]
 
-@app.get("/ok/", response_model=Response)
+@app.get("/ok", response_model=Response)
 def ok():
     return Response(status_code=200, message="OK")
 

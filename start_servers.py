@@ -5,6 +5,7 @@ from sa_grpc import user_pb2_grpc
 from sa_grpc import user_pb2
 import time
 import uvicorn
+from uvicorn import Config, Server
 import requests
 import argparse
 import sys
@@ -49,8 +50,32 @@ def check_rest_server_health(current_uptime):
 
 
 def create_rest_server_thread()-> threading.Thread:
-    rest_server_thread = threading.Thread(target=lambda: uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=True), daemon=True)
-    return rest_server_thread
+   def run_rest_server():
+      try:
+         uvicorn.run("api:app", host="127.0.0.1", port=8000)
+      except Exception as e:
+         print(f"[Error] - start_severs.py: REST server failed to start {e}")
+         return
+   rest_server_thread = threading.Thread(target=run_rest_server, daemon=True)
+   return rest_server_thread
+
+def create_rest_server_thread_secure()-> threading.Thread:
+   def create_secure_rest_server():
+      try:
+         config = Config(
+               "api:app", 
+               host="127.0.0.1", 
+               port=8000,  # Use a standard HTTPS port like 443 or 8443
+               ssl_keyfile="./server.key",  # Path to your private key
+               ssl_certfile="./server.crt"  # Path to your certificate
+         )
+         server = Server(config)
+         server.run()
+      except Exception as e:
+         print(f"[Error] - start_servers.py: Secure REST server failed to start {e}")
+         return
+   rest_server_thread = threading.Thread(target=create_secure_rest_server, daemon=True)
+   return rest_server_thread
 
 def server_thread_creation(server_creation_function):
     server_thread = threading.Thread(target=server_creation_function, daemon=True)
@@ -59,6 +84,7 @@ def server_thread_creation(server_creation_function):
 def create_grpc_server_thread()-> threading.Thread:
     grpc_server_thread = threading.Thread(target=server.insecure_server, daemon=True)
     return grpc_server_thread
+
 
 # def do_health_checks(current_uptime)-> bool:
     
@@ -73,29 +99,113 @@ def create_grpc_server_thread()-> threading.Thread:
 
 #     return rest_is_healthy and grpc_is_healthy
 
-def start_rest_server():
-    rest_server_thread = create_rest_server_thread()
-    rest_server_thread.start()
+def is_rest_healthy():
+      try:
+         response = requests.get(ok_url)
+         print(response)
+         print(f"[Info] REST server health check response: {response.status_code}")
+         if response.status_code == 200:
+               return True
+         else:
+               print("[Error] - start_severs.py: REST server is not healthy.")
+               return False
+      except Exception as e:
+         print(f"[Error] - start_severs.py:  REST server health check failed")
+         return False  
+
+def is_rest_secure_healthy():
+   try:
+      response = requests.get(ok_url, cert=("./server.crt", "./server.key") )
+      print(response)
+      print(f"[Info] Secure REST server health check response: {response.status_code}")
+      if response.status_code == 200:
+            return True
+      else:
+            print("[Error] - start_severs.py: Secure REST server is not healthy.")
+            return False
+   except Exception as e:
+      print(f"[Error] - start_severs.py: Secure REST server health check failed")
+      return False
+
+def is_any_server_healthy():
+   g_insec_health = call_grpc.is_insecure_healthy()
+   if g_insec_health:
+      return True
+   g_sec_health = call_grpc.is_secure_healthy() 
+   if g_sec_health:
+      return True
+   
+   r_health = is_rest_healthy()
+   if r_health:
+      return True
+   
+   return False
+
+def is_specified_server_healthy(args: Arguments):
+
+   if args.rest and not args.secure:
+      return is_rest_healthy()
+   if args.rest and args.secure:
+      return is_rest_secure_healthy()
+   if args.grpc and not args.secure:
+      return call_grpc.is_secure_healthy()
+   if args.grpc and args.secure:
+      return call_grpc.is_insecure_healthy()
+
+   raise NotImplementedError(f"No Server health for {args}.")
+
+def start_rest_insecure_server():
+   uptime = 0
+   sleep_time_sec = 5
+   rest_server_thread = create_rest_server_thread()
+   rest_server_thread.start()
+
+   # Wait for the servers to start
+   time.sleep(5)  # Adjust this as necessary to ensure the server is up
+   while True:
+      if not is_rest_healthy():
+         print("[Error] Server is not healthy.")
+         uptime += sleep_time_sec
+      else: 
+         # print("[Info] Server is healthy - Uptime: ", uptime, " seconds")
+         uptime += sleep_time_sec
+      time.sleep(sleep_time_sec)  # Adjust this as necessary to ensure the server is up
+
+def start_rest_secure_server():
+   uptime = 0
+   sleep_time_sec = 5
+   rest_server_thread = create_rest_server_thread_secure()
+   rest_server_thread.start()
+
+   # Wait for the servers to start
+   time.sleep(5)  # Adjust this as necessary to ensure the server is up
+   while True:
+      if not is_rest_secure_healthy():
+         uptime += sleep_time_sec
+      else: 
+         # print("[Info] Server is healthy - Uptime: ", uptime, " seconds")
+         uptime += sleep_time_sec
+      time.sleep(sleep_time_sec)  # Adjust this as necessary to ensure the server is up
 
 def start_grpc_insecure_server():
 
-    uptime = 0
-    sleep_time_sec = 30
-    # Run the server in a separate process
-    # Run the server in a background thread
-    # start_grpc_server()
-    grpc_server_thread = server_thread_creation(server.insecure_server)
-    grpc_server_thread.start()
-    
-    # Wait for the servers to start
-    time.sleep(5)  # Adjust this as necessary to ensure the server is up
-    while True:
-        is_healthy = call_grpc.is_insecure_healthy()
-        if not is_healthy:
-            print("[Error] Server is not healthy.")
-            break
-        uptime += sleep_time_sec
-        time.sleep(sleep_time_sec)  # Adjust this as necessary to ensure the server is up
+   uptime = 0
+   sleep_time_sec = 30
+   # Run the server in a separate process
+   # Run the server in a background thread
+   # start_grpc_server()
+   grpc_server_thread = server_thread_creation(server.insecure_server)
+   grpc_server_thread.start()
+   
+   # Wait for the servers to start
+   time.sleep(5)  # Adjust this as necessary to ensure the server is up
+   while True:
+      is_healthy = call_grpc.is_insecure_healthy()
+      if not is_healthy:
+         print("[Error] Server is not healthy.")
+         break
+      uptime += sleep_time_sec
+      time.sleep(sleep_time_sec)  # Adjust this as necessary to ensure the server is up
 
 
 def start_grpc_secure_server():
@@ -124,10 +234,11 @@ def start_server_from_args(args: Arguments):
         return
 
     if args.rest and not args.secure:
-        start_rest_server()
+        start_rest_insecure_server()
         return
 
     if args.rest and args.secure:
+        start_rest_secure_server()
         print("[Error] Secure REST server is not implemented yet.")
         return
     

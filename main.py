@@ -8,9 +8,8 @@ import threading
 import time
 import grpc
 from sa_grpc import call_grpc
-
-def run_rest_create(n_users: int):
-    pass
+import uvicorn
+import requests
 
     
 def run_rest_get(n_users):
@@ -20,43 +19,62 @@ def run_rest_get(n_users):
     print("Get users: avg response time (ms):  ", avg_response_time_get_users, "; requests per second: ", requests_pr_sec_get_users)
 
 
-def run_create_experiment(n_users: int, secure: bool):
+def run_create_experiment(args: Arguments):
     
     # print(f"Now creating {n_users} users.")
     # avg_response_time_rest, requests_per_sec_rest = rest.post_create_users(n_users)
-    if secure:
-      avg_respone_time_grcp, requests_per_sec_grcp = run_create_user_experiment_secure(n_requests=n_users)
-    else:
-      avg_respone_time_grcp, requests_per_sec_grcp = run_create_user_experiment(n_requests=n_users)
-    
-    
-    # print("Create users: avg response time (ms): ", avg_response_time_rest, "; requests per second: ", requests_per_sec_rest)
-    print("Create users: avg response time (ms): ", avg_respone_time_grcp, "; requests per second: ", requests_per_sec_grcp)
-    return avg_respone_time_grcp, requests_per_sec_grcp
+   if args.grpc and args.secure:
+      avg_respone_time_grcp, requests_per_sec_grcp = run_create_user_experiment_secure(n_requests=args.n_users)
+   if args.grpc and not args.secure:
+      avg_respone_time_grcp, requests_per_sec_grcp = run_create_user_experiment(n_requests=args.n_users)
+   
+   if args.rest and args.secure:
+      raise NotImplementedError("Secure REST server is not implemented yet.")
+   if args.rest and not args.secure:
+      avg_respone_time_grcp, requests_per_sec_grcp = rest.post_create_users(n_users=args.n_users)
+   
+   
+   # print("Create users: avg response time (ms): ", avg_response_time_rest, "; requests per second: ", requests_per_sec_rest)
+   print("Create users: avg response time (ms): ", avg_respone_time_grcp, "; requests per second: ", requests_per_sec_grcp)
+   return avg_respone_time_grcp, requests_per_sec_grcp
+
+
 
 
 def main(args: Arguments):
 
+   if args.grpc and not args.secure:
+      grpc_server_thread = threading.Thread(target=server.start_grpc_insecure_server, daemon=True)
+      grpc_server_thread.start()
 
-    if args.grpc and not args.secure:
-        grpc_server_thread = threading.Thread(target=server.start_grpc_insecure_server, daemon=True)
-        grpc_server_thread.start()
+   if args.grpc and args.secure:
+      grpc_server_thread = threading.Thread(target=server.start_grpc_secure_server, daemon=True)
+      grpc_server_thread.start()
+   
+   if args.rest and not args.secure:
+      rest_server_thread = threading.Thread(target=server.start_rest_insecure_server, daemon=True)
+      rest_server_thread.start()
 
-    if args.grpc and args.secure:
-        grpc_server_thread = threading.Thread(target=server.start_grpc_secure_server, daemon=True)
-        grpc_server_thread.start()
-    
-    # Waiting for server to start
-    starting = True
-    while starting:
-        if call_grpc.is_healthy(args.secure):
-            starting = False
-        time.sleep(1)
+   if args.rest and args.secure:
+      rest_server_thread = threading.Thread(target=server.start_rest_secure_server, daemon=True)
+      rest_server_thread.start()
+   
+   # Waiting for server to start
+   starting = True
+   time.sleep(5)
+   response = requests.get("https://localhost:8000/ok", cert=("./server.crt", "./server.key"), verify=False)
+   print(response)
+   # while starting:
+   #    if server.is_specified_server_healthy(args):
+   #       starting = False
+   #    else:
+   #       print("[Info] Waiting for server to start...") 
+   #    time.sleep(2)
 
-    avg_time_per_request, request_per_second = run_create_experiment(args.n_users, args.secure)
-    
-    print("Request per second: ", request_per_second)
-    print("avg time per reqest: ", avg_time_per_request*1000, "ms")
+   avg_time_per_request, request_per_second = run_create_experiment(args)
+   
+   # print("Request per second: ", request_per_second)
+   # print("avg time per reqest: ", avg_time_per_request*1000, "ms")
 
 
 
