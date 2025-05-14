@@ -11,6 +11,7 @@ import argparse
 import sys
 from Arguments import Arguments
 from sa_grpc import call_grpc
+import constants as c
 
 
 # def do_grpc_health_check(current_uptime: float)-> bool:
@@ -37,9 +38,6 @@ def check_grpc_server_health(stub, current_uptime)-> bool:
     return True
 
 
-base = "http://127.0.0.1:8000/" 
-ok_url = base + "ok"
-
 def check_rest_server_health(current_uptime):
     response = requests.get(ok_url)
     if response.status_code != 200:
@@ -64,10 +62,10 @@ def create_rest_server_thread_secure()-> threading.Thread:
       try:
          config = Config(
                "api:app", 
-               host="127.0.0.1", 
-               port=8000,  # Use a standard HTTPS port like 443 or 8443
-               ssl_keyfile="./server.key",  # Path to your private key
-               ssl_certfile="./server.crt"  # Path to your certificate
+               host=c.SERVER_HOST,    
+               port=c.SERVER_PORT,  # Use a standard HTTPS port like 443 or 8443
+               ssl_keyfile=c.SERVER_PRIVATE_KEY_PATH,  # Path to your private key
+               ssl_certfile=c.SERVER_CERTIFICATE_PATH  # Path to your certificate
          )
          server = Server(config)
          server.run()
@@ -86,23 +84,11 @@ def create_grpc_server_thread()-> threading.Thread:
     return grpc_server_thread
 
 
-# def do_health_checks(current_uptime)-> bool:
-    
-#     grpc_is_healthy = False
-#     with grpc.insecure_channel('localhost:50051') as channel:
-#         stub = user_pb2_grpc.UserServiceStub(channel)
-#         grpc_is_healthy = check_grpc_server_health(stub, current_uptime)
-    
-#     # Check REST server health
-#     # do a request to the REST server
-#     rest_is_healthy = check_rest_server_health(current_uptime)
 
-#     return rest_is_healthy and grpc_is_healthy
 
 def is_rest_healthy():
       try:
-         response = requests.get(ok_url)
-         print(response)
+         response = requests.get(c.REST_INSECURE_OK_URL)
          print(f"[Info] REST server health check response: {response.status_code}")
          if response.status_code == 200:
                return True
@@ -115,8 +101,7 @@ def is_rest_healthy():
 
 def is_rest_secure_healthy():
    try:
-      response = requests.get(ok_url, cert=("./server.crt", "./server.key") )
-      print(response)
+      response = requests.get(c.REST_SECURE_OK_URL, cert=(c.SERVER_CERTIFICATE_PATH, c.SERVER_PRIVATE_KEY_PATH), verify=False)
       print(f"[Info] Secure REST server health check response: {response.status_code}")
       if response.status_code == 200:
             return True

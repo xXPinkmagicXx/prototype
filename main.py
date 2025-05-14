@@ -10,6 +10,10 @@ import grpc
 from sa_grpc import call_grpc
 import uvicorn
 import requests
+import constants
+import urllib3
+# To supress the certificate warning
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     
 def run_rest_get(n_users):
@@ -23,26 +27,25 @@ def run_create_experiment(args: Arguments):
     
     # print(f"Now creating {n_users} users.")
     # avg_response_time_rest, requests_per_sec_rest = rest.post_create_users(n_users)
+   avg_response_time, requests_per_sec = (0, 0)
    if args.grpc and args.secure:
-      avg_respone_time_grcp, requests_per_sec_grcp = run_create_user_experiment_secure(n_requests=args.n_users)
+      avg_response_time, requests_per_sec= run_create_user_experiment_secure(n_requests=args.n_users)
    if args.grpc and not args.secure:
-      avg_respone_time_grcp, requests_per_sec_grcp = run_create_user_experiment(n_requests=args.n_users)
+      avg_response_time, requests_per_sec = run_create_user_experiment(n_requests=args.n_users)
    
    if args.rest and args.secure:
-      raise NotImplementedError("Secure REST server is not implemented yet.")
+      avg_response_time, requests_per_sec = rest.post_create_users_secure(n_users=args.n_users)
    if args.rest and not args.secure:
-      avg_respone_time_grcp, requests_per_sec_grcp = rest.post_create_users(n_users=args.n_users)
+      avg_response_time, requests_per_sec = rest.post_create_users(n_users=args.n_users)
    
    
    # print("Create users: avg response time (ms): ", avg_response_time_rest, "; requests per second: ", requests_per_sec_rest)
-   print("Create users: avg response time (ms): ", avg_respone_time_grcp, "; requests per second: ", requests_per_sec_grcp)
-   return avg_respone_time_grcp, requests_per_sec_grcp
+   print("Create users: avg response time (ms): ", avg_response_time, "; requests per second: ", requests_per_sec)
+   return avg_response_time, requests_per_sec
 
 
 
-
-def main(args: Arguments):
-
+def start_sever_in_background(args: Arguments)->None:
    if args.grpc and not args.secure:
       grpc_server_thread = threading.Thread(target=server.start_grpc_insecure_server, daemon=True)
       grpc_server_thread.start()
@@ -58,25 +61,26 @@ def main(args: Arguments):
    if args.rest and args.secure:
       rest_server_thread = threading.Thread(target=server.start_rest_secure_server, daemon=True)
       rest_server_thread.start()
-   
+
+def main(args: Arguments):
+
+   start_sever_in_background(args)
    # Waiting for server to start
    starting = True
    time.sleep(5)
    response = requests.get("https://localhost:8000/ok", cert=("./server.crt", "./server.key"), verify=False)
    print(response)
-   # while starting:
-   #    if server.is_specified_server_healthy(args):
-   #       starting = False
-   #    else:
-   #       print("[Info] Waiting for server to start...") 
-   #    time.sleep(2)
+   while starting:
+      if server.is_specified_server_healthy(args):
+         starting = False
+      else:
+         print("[Info] Waiting for server to start...") 
+      time.sleep(2)
 
    avg_time_per_request, request_per_second = run_create_experiment(args)
    
    # print("Request per second: ", request_per_second)
    # print("avg time per reqest: ", avg_time_per_request*1000, "ms")
-
-
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import random
 import string
 import json 
 import time
+import constants as c
 
 base = "http://127.0.0.1:8000/" 
 create_url = "create_user/"
@@ -34,22 +35,39 @@ def generate_random_users(n: int) -> list:
         users.append(create_user_data(name, email, password))
     return users
 
-def post_create_users(n_users: int = 1000)-> tuple[float, list]:
-    users = generate_random_users(n_users)
-    response_times_sum = 0
-    begin_time = time.time()
-    for user in users:
-        time_before = time.time()
-        response = requests.post(base + create_url, json=user)
-        time_after = time.time()
-        response_times_sum += time_after - time_before
-    end_time = time.time()
-    
-    total_time = end_time - begin_time
-    avg_response_time = response_times_sum / n_users
-    avg_response_time_ms = avg_response_time * 1000
-    
-    return (avg_response_time_ms, n_users / total_time)
+def post_create_users(n_users: int = 1000)-> tuple[float, float]:
+   users = generate_random_users(n_users)
+   response_times_sum = 0
+   begin_time = time.time()
+   for user in users:
+      time_before = time.time()
+      response = requests.post(base + create_url, json=user)
+      time_after = time.time()
+      response_times_sum += time_after - time_before
+   end_time = time.time()
+   
+   total_time = end_time - begin_time
+   avg_response_time = response_times_sum / n_users
+   avg_response_time_ms = avg_response_time * 1000
+   
+   return (avg_response_time_ms, n_users / total_time)
+
+def post_create_users_secure(n_users: int) -> tuple[float, float]:
+   users = generate_random_users(n_users)
+   response_times_sum = 0
+   begin_time = time.time()
+   for user in users:
+      time_before = time.time()
+      response = requests.post(c.BASE_SECURE_URL + create_url, json=user, cert=(c.SERVER_CERTIFICATE_PATH, c.SERVER_PRIVATE_KEY_PATH), verify=False)
+      time_after = time.time()
+      response_times_sum += time_after - time_before
+   end_time = time.time()
+   
+   total_time = end_time - begin_time
+   avg_response_time = response_times_sum / n_users
+   avg_response_time_ms = avg_response_time * 1000
+   
+   return (avg_response_time_ms, n_users / total_time)
 
 # def do_timeing(n_users: int, url: str, function: callable, function_args: list)-> tuple[float, list]:
 #     users = generate_random_users(n_users)
