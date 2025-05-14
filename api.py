@@ -2,7 +2,11 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import json
+import logging
 
+# Set logging level to CRITICAL to suppress logs
+logging.getLogger("uvicorn.access").setLevel(logging.CRITICAL)
+logging.getLogger("uvicorn.error").setLevel(logging.CRITICAL)
 app = FastAPI()
 
 # Define the data model

@@ -40,9 +40,6 @@ def run_create_experiment(args: Arguments)->tuple[float, float]:
    if args.rest and not args.secure:
       avg_response_time, requests_per_sec = rest.post_create_users(n_users=args.n_users)
    
-   
-   # print("Create users: avg response time (ms): ", avg_response_time_rest, "; requests per second: ", requests_per_sec_rest)
-   print("Create users: avg response time (ms): ", avg_response_time, "; requests per second: ", requests_per_sec)
    return avg_response_time, requests_per_sec
 
 def start_sever_in_background(args: Arguments)->None:
@@ -119,10 +116,7 @@ def main(args: Arguments):
 
 if __name__ == "__main__":
     
-    
-   # How to parse arguments
    parser = argparse.ArgumentParser(description="Start gRPC and REST servers.")
-   # How to parse short args 
 
    parser.add_argument("--grpc", "-g", action="store_true", help="Run gRPC server")
    parser.add_argument("--rest", "-r", action="store_true", help="Run REST server")
@@ -132,9 +126,8 @@ if __name__ == "__main__":
 
    args = parser.parse_args(sys.argv[1:])
    arguments = Arguments(grpc=args.grpc, rest=args.rest, secure=args.secure, method=args.method)
-   
    arguments.n_users = args.n_users
+   
    print("[Info] main.py - arguments: " , arguments)
    main(arguments)
-   
    print("[Info] Experiment finished")

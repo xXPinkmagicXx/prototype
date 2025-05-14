@@ -14,9 +14,9 @@ done
 
 # Run the REST experiments
 for value in 100 1000 10000; do
-   python main.py -g -s -n $value -m create 
+   python main.py -r -s -n $value -m create 
 done
 
 for value in 100 1000 10000; do
-   python main.py -g -s -n $value -m get 
+   python main.py -r -s -n $value -m get 
 done
