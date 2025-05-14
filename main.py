@@ -31,9 +31,9 @@ def run_create_experiment(args: Arguments)->tuple[float, float]:
     # avg_response_time_rest, requests_per_sec_rest = rest.post_create_users(n_users)
    avg_response_time, requests_per_sec = (0, 0)
    if args.grpc and args.secure:
-      avg_response_time, requests_per_sec= run_create_user_experiment_secure(n_requests=args.n_users)
+      avg_response_time, requests_per_sec, users = run_create_user_experiment_secure(n_requests=args.n_users)
    if args.grpc and not args.secure:
-      avg_response_time, requests_per_sec = run_create_user_experiment_insecure(n_requests=args.n_users)
+      avg_response_time, requests_per_sec, users = run_create_user_experiment_insecure(n_requests=args.n_users)
    
    if args.rest and args.secure:
       avg_response_time, requests_per_sec = rest.post_create_users_secure(n_users=args.n_users)
@@ -81,13 +81,9 @@ def run_get_experiment(args: Arguments):
       avg_response_time, request_per_sec = run_get_user_experiment_insecure(args.n_users, False)
    
    if args.grpc and args.secure:
-      avg_response_time, request_per_sec = run_get_user_experiment_secure(args.n_users, False)
-
+      avg_response_time, request_per_sec, usernames = run_get_user_experiment_secure(args.n_users, False)
 
    return avg_response_time, request_per_sec
-
-
-
 
 def main(args: Arguments):
 
@@ -138,7 +134,7 @@ if __name__ == "__main__":
    arguments = Arguments(grpc=args.grpc, rest=args.rest, secure=args.secure, method=args.method)
    
    arguments.n_users = args.n_users
-   print(arguments)
+   print("[Info] main.py - arguments: " , arguments)
    main(arguments)
    
    print("[Info] Experiment finished")

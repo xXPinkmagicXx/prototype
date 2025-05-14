@@ -15,6 +15,14 @@ pip install -r requirements.txt
 
 # Run the code
 
+# Reproduce the results
+
+Run the `run.sh`
+
+```bash
+./run.sh
+```
+
 ## Run the FastAPI
 
 To start the application

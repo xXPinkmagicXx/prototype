@@ -52,7 +52,7 @@ class Result:
          f.write(str(self.request_per_sec))
          f.write("\n")
       
-      print(f"Saved Result to {file_name}")
+      print(f"[Info] Result.py - Saved Result to {file_name}")
    
    def _get_file_name(self):
       file_name = ""

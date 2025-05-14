@@ -53,11 +53,11 @@ def insecure_server():
         user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
         server.add_insecure_port('[::]:50051')
         server.start()
-        print("Insecure server started on port 50051")
+        print("[Info] server.py - Insecure server started on port 50051")
         server.wait_for_termination()
 
     except Exception as e:
-        print(f"[Error] Server stopped unexpectedly: {e}")
+        print(f"[Error] server.py Server stopped unexpectedly: {e}")
 
 def secure_server():
     try: 
@@ -71,9 +71,9 @@ def secure_server():
         server.add_secure_port('[::]:50051', server_credentials)
         server.start()
         
-        print("Server started on port 50051")
+        print("[Info] server.py - Server started on port 50051")
         server.wait_for_termination()
-        print("[info] Server terminated")
+        print("[Info] sever.py - Server terminated")
 
     except Exception as e:
         print(f"[Error] Server stopped unexpectedly: {e}")

@@ -4,6 +4,7 @@ from . import user_pb2_grpc
 import string
 import random
 import time
+from . import utils
 
 def create_user(stub, username, email):
   """Creates a user using the gRPC stub."""
@@ -24,6 +25,11 @@ def post_create_user_insecure(username) -> str:
       response = create_user(stub, username, email)
       return response.success
     
+   
+def post_create_user_secure_2(username: str) -> bool:
+   email = username + "@gmail.com"
+   utils.create_secure_stub_and_run(lambda stub: create_user(stub, username, email))
+
 def post_create_user_secure(username: str)-> bool:
   """Runs the client application."""
   # Replace 'localhost:50051' with your server address.
@@ -71,7 +77,7 @@ def run_create_user_experiment_secure(n_requests: int) -> tuple[float, float, li
    usernames = generate_random_users(n_requests)    
    begin_time = time.time()
    for user in usernames:
-      success = post_create_user_secure(user)
+      success = post_create_user_secure_2(user)
    timer_after = time.time()
    total_time = timer_after - begin_time
    

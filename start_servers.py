@@ -32,7 +32,7 @@ def check_grpc_server_health(stub, current_uptime)-> bool:
             print("[Error] Server is not responding correctly.")
             return False
     except grpc.RpcError as e:
-        print(f"[Error] Health check failed: {e}")
+        print(f"[Error] start_servers.py - Health check failed")
         return False
     
     return True

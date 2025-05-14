@@ -4,6 +4,7 @@ from . import user_pb2_grpc
 import string
 import random
 import time
+from . import utils
 import sys
 from . import run_create_user_experiment_insecure, run_create_user_experiment_secure
 
@@ -41,6 +42,8 @@ def get_user_secure(username:str):
       if response.success:
          return response.user_id
 
+def get_user_secure_2(username: str):
+   utils.create_secure_stub_and_run(lambda stub: check_user(stub, username))
 
 def run_get_user_experiment_insecure(n_requests:int, users_created: bool) -> tuple[float, float]:
    # Create
@@ -63,11 +66,12 @@ def run_get_user_experiment_insecure(n_requests:int, users_created: bool) -> tup
 def run_get_user_experiment_secure(n_requests:int, users_created: bool) -> tuple[float, float]:
    # Create
    if not users_created:
+      print("[Info] check_user.py - creating users for experiment")
       _, _, usernames = run_create_user_experiment_secure(n_requests)
 
    begin_time = time.time()
    for username in usernames:
-      user = get_user_secure(username)
+      user = get_user_secure_2(username)
    timer_after = time.time()
    total_time = timer_after - begin_time
    
