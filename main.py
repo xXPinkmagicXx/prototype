@@ -11,6 +11,7 @@ from sa_grpc import call_grpc
 import uvicorn
 import requests
 import constants
+from Result import Result
 import urllib3
 # To supress the certificate warning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -62,6 +63,10 @@ def start_sever_in_background(args: Arguments)->None:
       rest_server_thread = threading.Thread(target=server.start_rest_secure_server, daemon=True)
       rest_server_thread.start()
 
+
+
+
+
 def main(args: Arguments):
 
    start_sever_in_background(args)
@@ -79,6 +84,9 @@ def main(args: Arguments):
 
    avg_time_per_request, request_per_second = run_create_experiment(args)
    
+   result = Result(args, avg_time_per_request, request_per_second)
+   result.save_experiment_to_file()
+
    # print("Request per second: ", request_per_second)
    # print("avg time per reqest: ", avg_time_per_request*1000, "ms")
 
@@ -86,20 +94,21 @@ def main(args: Arguments):
 if __name__ == "__main__":
     
     
-    # How to parse arguments
-    parser = argparse.ArgumentParser(description="Start gRPC and REST servers.")
-    # How to parse short args 
+   # How to parse arguments
+   parser = argparse.ArgumentParser(description="Start gRPC and REST servers.")
+   # How to parse short args 
 
-    parser.add_argument("--grpc", "-g", action="store_true", help="Run gRPC server")
-    parser.add_argument("--rest", "-r", action="store_true", help="Run REST server")
-    parser.add_argument("--secure", "-s", action="store_true", help="With secure server")
-    parser.add_argument("--n_users", "-n", type=int, default=10_000, help="Number of users to create")
+   parser.add_argument("--grpc", "-g", action="store_true", help="Run gRPC server")
+   parser.add_argument("--rest", "-r", action="store_true", help="Run REST server")
+   parser.add_argument("--secure", "-s", action="store_true", help="With secure server")
+   parser.add_argument("--n_users", "-n", type=int, default=10_000, help="Number of users to create")
+   parser.add_argument("--method", "-m", type=str, default="create", help="Specify which method to test")
 
-    args = parser.parse_args(sys.argv[1:])
-    arguments = Arguments(grpc=args.grpc, rest=args.rest, secure=args.secure)
-    
-    arguments.n_users = args.n_users
-    print(arguments)
-    main(arguments)
-    
-    print("[Info] Experiment finished")
+   args = parser.parse_args(sys.argv[1:])
+   arguments = Arguments(grpc=args.grpc, rest=args.rest, secure=args.secure, method=args.method)
+   
+   arguments.n_users = args.n_users
+   print(arguments)
+   main(arguments)
+   
+   print("[Info] Experiment finished")
