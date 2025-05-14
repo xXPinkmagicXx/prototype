@@ -6,6 +6,8 @@ from concurrent import futures
 database = {}
 
 class UserService(user_pb2_grpc.UserServiceServicer):
+    
+    
     def CreateUser(self, request, context):
         #print(f"Received user creation request: {request.username}, {request.email}")
 

@@ -1,6 +1,0 @@
-avg_response_time_ms: 12.030599117279053
-request_per_sec: 83.11057522259794
-avg_response_time_ms: 11.642062664031982
-request_per_sec: 85.88357742035818
-avg_response_time_ms: 12.307491302490234
-request_per_sec: 81.23968113896208

@@ -92,9 +92,29 @@ def get_users(n_users: int = 1000, users_created = True)-> tuple[float, float]:
     
     begin_time = time.time()
     response_times_sum = 0
-    for user_email in user_emails:
+    for user_email in user_emails: # user_emails global variable
         time_before = time.time()
         response = requests.get(get_user_url(user_email))
+        time_after = time.time()
+        response_times_sum += time_after - time_before
+    end_time = time.time()
+
+    total_time = end_time - begin_time
+    request_per_sec = n_users / total_time
+    avg_response_time = response_times_sum / n_users
+    avg_response_time_ms = avg_response_time * 1000
+
+    return (avg_response_time_ms, request_per_sec)
+
+def get_users_secure(n_users: int, users_created = True) -> tuple[float, float]:
+    if not users_created:
+        post_create_users_secure(n_users)
+    
+    begin_time = time.time()
+    response_times_sum = 0
+    for user_email in user_emails:
+        time_before = time.time()
+        response = requests.get(c.REST_SECURE_GET_URL + user_email)
         time_after = time.time()
         response_times_sum += time_after - time_before
     end_time = time.time()

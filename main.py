@@ -10,7 +10,7 @@ import grpc
 from sa_grpc import call_grpc
 import uvicorn
 import requests
-import constants
+import constants as c
 from Result import Result
 import urllib3
 # To supress the certificate warning
@@ -24,7 +24,7 @@ def run_rest_get(n_users):
     print("Get users: avg response time (ms):  ", avg_response_time_get_users, "; requests per second: ", requests_pr_sec_get_users)
 
 
-def run_create_experiment(args: Arguments):
+def run_create_experiment(args: Arguments)->tuple[float, float]:
     
     # print(f"Now creating {n_users} users.")
     # avg_response_time_rest, requests_per_sec_rest = rest.post_create_users(n_users)
@@ -73,6 +73,16 @@ def start_sever_in_background(args: Arguments)->None:
 
 
 
+def run_get_experiment(args: Arguments):
+
+   avg_response_time, request_per_sec = None, None
+   if args.rest and not args.secure:
+      avg_response_time, request_per_sec = rest.get_users(args.n_users, False)
+
+   if args.rest and args.secure:
+      res
+   return avg_response_time, request_per_sec
+
 
 def main(args: Arguments):
 
@@ -86,10 +96,20 @@ def main(args: Arguments):
          print("[Info] Waiting for server to start...") 
       time.sleep(2)
 
+
    print("[Info] main.py: Running Experiment")
-   avg_time_per_request, request_per_second = run_create_experiment(args)
-   
-   result = Result(args, avg_time_per_request, request_per_second)
+
+   if args.method == c.METHOD_CREATE:
+      avg_response_time, request_per_second = run_create_experiment(args)
+   elif args.method == c.METHOD_GET:
+      avg_response_time, request_per_second = run_get_experiment(args)
+   elif args.method == c.METHOD_DELETE:
+      raise NotImplementedError("Delete")
+   else:
+      raise NotImplementedError(f"No experiment implemented with method: {args.method}")
+
+   result = Result(args, avg_response_time, request_per_second)
+   result.is_result_valid()
    result.save_experiment_to_file()
 
    # print("Request per second: ", request_per_second)
@@ -107,7 +127,7 @@ if __name__ == "__main__":
    parser.add_argument("--rest", "-r", action="store_true", help="Run REST server")
    parser.add_argument("--secure", "-s", action="store_true", help="With secure server")
    parser.add_argument("--n_users", "-n", type=int, default=10_000, help="Number of users to create")
-   parser.add_argument("--method", "-m", type=str, default="create", help="Specify which method to test")
+   parser.add_argument("--method", "-m", type=str, default=c.METHOD_CREATE, help="Specify which method to test")
 
    args = parser.parse_args(sys.argv[1:])
    arguments = Arguments(grpc=args.grpc, rest=args.rest, secure=args.secure, method=args.method)

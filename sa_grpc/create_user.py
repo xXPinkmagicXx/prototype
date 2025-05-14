@@ -55,33 +55,35 @@ def post_create_user_secure():
 
 def run_create_user_experiment(n_requests: int) -> tuple[float, float]:
     
-    begin_time = time.time()
-    for _ in range(n_requests):
-        post_create_user_insecure()
-    timer_after = time.time()
-    total_time = timer_after - begin_time
-    
-    # Calculate metrics
-    avg_time_per_request = total_time / n_requests
-    request_per_second = n_requests / total_time   
+   begin_time = time.time()
+   for _ in range(n_requests):
+      post_create_user_insecure()
+   timer_after = time.time()
+   total_time = timer_after - begin_time
+   
+   # Calculate metrics
+   avg_time_per_request = total_time / n_requests
+   request_per_second = n_requests / total_time   
 
-    return avg_time_per_request, request_per_second
+   avg_time_per_request_ms = avg_time_per_request * 1000
+   return avg_time_per_request_ms, request_per_second
 
 def run_create_user_experiment_secure(n_requests: int) -> tuple[float, float]:
-    """Runs the client application."""
-    # Replace 'localhost:50051' with your server address.
+   """Runs the client application."""
+   # Replace 'localhost:50051' with your server address.
 
-    begin_time = time.time()
-    for _ in range(n_requests):
-        post_create_user_secure()
-    timer_after = time.time()
-    total_time = timer_after - begin_time
-    
-    # Calculate metrics
-    avg_time_per_request = total_time / n_requests
-    request_per_second = n_requests / total_time   
-
-    return avg_time_per_request, request_per_second
+   begin_time = time.time()
+   for _ in range(n_requests):
+      post_create_user_secure()
+   timer_after = time.time()
+   total_time = timer_after - begin_time
+   
+   # Calculate metrics
+   avg_time_per_request = total_time / n_requests
+   request_per_second = n_requests / total_time   
+   
+   avg_time_per_request_ms = avg_time_per_request * 1000
+   return avg_time_per_request_ms, request_per_second
 
 if __name__ == '__main__':
     

@@ -16,8 +16,14 @@ class Result:
          f.write("\n")
       
 
+   def is_result_valid(self) -> bool:
+      if self.avg_response_time is None:
+         raise ValueError(f"{self.avg_response_time}")
+      if self.request_per_sec is None:
+         raise ValueError(f"{self.request_per_sec}")
 
-
+      return True
+   
    def save_experiment_to_file(self):
 
       if not os.path.exists("./data/"):
