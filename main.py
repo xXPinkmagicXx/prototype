@@ -1,5 +1,6 @@
 import send_requests as rest
-from sa_grpc.create_user import run_create_user_experiment, run_create_user_experiment_secure
+from sa_grpc import run_create_user_experiment_insecure, run_create_user_experiment_secure
+from sa_grpc.check_user import run_get_user_experiment_insecure
 from Arguments import Arguments
 import argparse
 import sys
@@ -32,7 +33,7 @@ def run_create_experiment(args: Arguments)->tuple[float, float]:
    if args.grpc and args.secure:
       avg_response_time, requests_per_sec= run_create_user_experiment_secure(n_requests=args.n_users)
    if args.grpc and not args.secure:
-      avg_response_time, requests_per_sec = run_create_user_experiment(n_requests=args.n_users)
+      avg_response_time, requests_per_sec = run_create_user_experiment_insecure(n_requests=args.n_users)
    
    if args.rest and args.secure:
       avg_response_time, requests_per_sec = rest.post_create_users_secure(n_users=args.n_users)
@@ -43,8 +44,6 @@ def run_create_experiment(args: Arguments)->tuple[float, float]:
    # print("Create users: avg response time (ms): ", avg_response_time_rest, "; requests per second: ", requests_per_sec_rest)
    print("Create users: avg response time (ms): ", avg_response_time, "; requests per second: ", requests_per_sec)
    return avg_response_time, requests_per_sec
-
-
 
 def start_sever_in_background(args: Arguments)->None:
    if args.grpc and not args.secure:
@@ -69,10 +68,6 @@ def start_sever_in_background(args: Arguments)->None:
       rest_server_thread.start()
       print(f"[Info] main.py - started server rest secure: {args.secure}")
 
-
-
-
-
 def run_get_experiment(args: Arguments):
 
    avg_response_time, request_per_sec = None, None
@@ -80,8 +75,18 @@ def run_get_experiment(args: Arguments):
       avg_response_time, request_per_sec = rest.get_users(args.n_users, False)
 
    if args.rest and args.secure:
-      res
+      avg_response_time, request_per_sec = rest.get_users_secure(args.n_users, False)
+   
+   if args.grpc and not args.secure:
+      avg_response_time, request_per_sec = run_get_user_experiment_insecure(args.n_users, False)
+   
+   if args.grpc and args.secure:
+      raise NotImplementedError("get experiment grpc and secure")
+
+
    return avg_response_time, request_per_sec
+
+
 
 
 def main(args: Arguments):

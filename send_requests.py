@@ -69,18 +69,6 @@ def post_create_users_secure(n_users: int) -> tuple[float, float]:
    
    return (avg_response_time_ms, n_users / total_time)
 
-# def do_timeing(n_users: int, url: str, function: callable, function_args: list)-> tuple[float, list]:
-#     users = generate_random_users(n_users)
-#     begin_time = time.time()
-#     response_times = []
-#     for user in users:
-#         time_before = time.time()
-#         function(url, function_args)
-#         time_after = time.time()
-#         response_times.append(time_after - time_before) 
-#     end_time = time.time()
-
-#     return (end_time - begin_time, response_times)
 
 def get_user(url: str, args: list)-> requests.Response:
     response = requests.get(url, json=args[0])
@@ -114,7 +102,7 @@ def get_users_secure(n_users: int, users_created = True) -> tuple[float, float]:
     response_times_sum = 0
     for user_email in user_emails:
         time_before = time.time()
-        response = requests.get(c.REST_SECURE_GET_URL + user_email)
+        response = requests.get(c.REST_SECURE_GET_URL + user_email, verify=False)
         time_after = time.time()
         response_times_sum += time_after - time_before
     end_time = time.time()

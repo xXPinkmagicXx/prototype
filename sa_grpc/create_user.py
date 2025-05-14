@@ -13,23 +13,17 @@ def create_user(stub, username, email):
 
 
 
-def post_create_user_insecure():
+def post_create_user_insecure(username) -> str:
   """Runs the client application."""
   # Replace 'localhost:50051' with your server address.
   with grpc.insecure_channel('localhost:50051') as channel:
-    stub = user_pb2_grpc.UserServiceStub(channel)
+      stub = user_pb2_grpc.UserServiceStub(channel)
 
-    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 8))
-    username = "user" + random_string
-    email = username + "@gmail.com"
+      email = username + "@gmail.com"
 
-    response = create_user(stub, username, email)
-
-    if response.success:
-      #print(f"User created successfully! User ID: {response.user_id}")
-      return
-    else:
-      print(f"Failed to create user. Error: {response.error_message}")
+      response = create_user(stub, username, email)
+      return response.success
+    
 def post_create_user_secure():
   """Runs the client application."""
   # Replace 'localhost:50051' with your server address.
@@ -51,13 +45,23 @@ def post_create_user_secure():
       return
     else:
       print(f"Failed to create user. Error: {response.error_message}")
-  
 
-def run_create_user_experiment(n_requests: int) -> tuple[float, float]:
-    
+def generate_random_users(n: int) -> list:
+    users: list[str] = []
+    for i in range(n):
+        name = generate_random_string()
+        users.append(name)
+    return users
+
+def generate_random_string(length: int = 8) -> str:
+    letters = string.ascii_letters + string.digits
+    return ''.join(random.choice(letters) for i in range(length))
+
+def run_create_user_experiment_insecure(n_requests: int) -> tuple[float, float, list]:
+   users = generate_random_users(n_requests)    
    begin_time = time.time()
-   for _ in range(n_requests):
-      post_create_user_insecure()
+   for user in users :
+      success = post_create_user_insecure(user)
    timer_after = time.time()
    total_time = timer_after - begin_time
    
@@ -66,7 +70,7 @@ def run_create_user_experiment(n_requests: int) -> tuple[float, float]:
    request_per_second = n_requests / total_time   
 
    avg_time_per_request_ms = avg_time_per_request * 1000
-   return avg_time_per_request_ms, request_per_second
+   return avg_time_per_request_ms, request_per_second, users
 
 def run_create_user_experiment_secure(n_requests: int) -> tuple[float, float]:
    """Runs the client application."""
@@ -88,7 +92,7 @@ def run_create_user_experiment_secure(n_requests: int) -> tuple[float, float]:
 if __name__ == '__main__':
     
   n_requests = 10_000
-  avg_time_per_request, request_per_second = run_create_user_experiment(n_requests)
+  avg_time_per_request, request_per_second = run_create_user_experiment_insecure(n_requests)
 
   print("Request per second: ", request_per_second)
   print("avg time per reqest: ", avg_time_per_request*1000, "ms")

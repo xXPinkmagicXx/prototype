@@ -36,12 +36,12 @@ class UserService(user_pb2_grpc.UserServiceServicer):
 
     def CheckUser(self, request, context):
         user_id = request.username
-        print("Checking user {request.username}")
+      #   print("Checking user {request.username}")
         if request.username in database:
-            print("User exist")
+            # print("User exist")
             return user_pb2.UserResponse(success=True, user_id=user_id)
         else:
-            print("User doesn't exist")
+            # print("User doesn't exist")
             return user_pb2.UserResponse(success=False)
     
     def Ok(self, request, context):

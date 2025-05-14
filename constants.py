@@ -6,7 +6,7 @@ BASE_SECURE_URL = "https://localhost:8000/"
 REST_SECURE_OK_URL = "https://localhost:8000/ok"
 REST_INSECURE_OK_URL = "http://localhost:8000/ok"
 
-REST_SECURE_GET_URL = BASE_SECURE_URL + "get/"
+REST_SECURE_GET_URL = BASE_SECURE_URL + "users/"
 
 # Certificate and private key
 SERVER_PRIVATE_KEY_PATH =  "./server.key"
